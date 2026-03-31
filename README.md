@@ -21,15 +21,15 @@ Unlike many existing Islamic apps, Amanah distinguishes itself through:
 
 ## 🏗️ Architecture
 [cite_start]The project utilizes a layered architecture to maintain a "Privacy-First" design.
-1.  [cite_start]**Mobile App (Flutter):** Presentation layer focusing on accessibility and modern UI.
-2.  [cite_start]**API Layer (Django):** Manages location-based services and notification logic.
-3.  [cite_start]**Data Layer (MongoDB):** Securely handles sensitive personal and location data.
+1.  **Mobile App (Flutter):** Presentation layer focusing on accessibility and modern UI.
+2.  **API Layer (Django):** Manages location-based services and notification logic.
+3.  **Data Layer (MongoDB):** Securely handles sensitive personal and location data.
 
 ## 📋 Installation
 
 1.  **Clone the repo:**
     ```bash
-    git clone [https://github.com/Nihaal-Durrani/Amanah-Your_Islamic_Companion.git](https://github.com/Nihaal-Durrani/Amanah_Your-Islamic-Companion.git)
+    git clone [https://github.com/Nihaal-Durrani/Amanah-Your_Islamic_Companion.git]
     ```
 2.  **Backend Setup (Django):**
     ```bash
