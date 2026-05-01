@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+# Django
+*.sqlite3
+db.sqlite3
+
+# Environment variables
+.env
+
+# VS Code
+.vscode/
+
+# Byte-compiled
+*.egg-info/
+dist/
+build/
+
+# Misc
+get-pip.py
+.DS_Store
+Thumbs.db
