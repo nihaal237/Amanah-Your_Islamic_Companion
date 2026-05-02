@@ -11,6 +11,9 @@ urlpatterns = [
     # JWT token refresh
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
-    # Quran endpoints (surahs, verses, search, bookmarks)
+    # Prayer engine (times, qibla, log, history) — FR6-FR8
+    path('api/prayer/', include('prayer.urls')),
+
+    # Quran endpoints (surahs, verses, search, bookmarks) — FR15-FR17
     path('api/quran/', include('quran.urls')),
 ]
