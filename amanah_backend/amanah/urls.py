@@ -25,4 +25,7 @@ urlpatterns = [
 
     # Growth and analytics (mood, goals, score) — FR26-FR28
     path('api/growth/', include('growth.urls')),
+
+    # Calendar integration (events, reminders) — FR29-FR30
+    path("api/calendar/", include("calendar_app.urls")),
 ]
