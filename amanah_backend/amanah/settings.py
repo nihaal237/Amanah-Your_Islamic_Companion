@@ -26,6 +26,8 @@ INSTALLED_APPS = [
     'corsheaders',
     # Local apps
     'users',
+    'prayer',                  # Prayer engine (FR6-FR8)
+    'quran',                   # Quran service (FR15-FR17)
     'prayer',                  # ← ADDED: Prayer engine (FR6-FR8)
 ]
 
