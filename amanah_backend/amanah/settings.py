@@ -29,7 +29,7 @@ INSTALLED_APPS = [
     'prayer',                  # Prayer engine (FR6-FR8)
     'quran',                   # Quran service (FR15-FR17)
     'community',                # Community features (FR9-FR14)
-    'scholar',                  # Scholar Q&A (FR18-FR22)
+    'scholar',                  # Scholar Q&A (FR22-FR25)
 ]
 
 MIDDLEWARE = [
