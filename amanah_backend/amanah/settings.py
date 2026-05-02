@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'corsheaders',
     # Local apps
     'users',
+    'prayer',                  # ← ADDED: Prayer engine (FR6-FR8)
 ]
 
 MIDDLEWARE = [
@@ -110,3 +111,4 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AES_ENCRYPTION_KEY = os.getenv('AES_ENCRYPTION_KEY', 'change-me-32-byte-key-for-aes256!!')
+FIELD_ENCRYPTION_KEY = os.getenv('FIELD_ENCRYPTION_KEY')  # ← ADDED: Fernet key for GPS encryption (prayer/models.py)

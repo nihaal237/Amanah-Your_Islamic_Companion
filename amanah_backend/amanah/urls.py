@@ -10,4 +10,7 @@ urlpatterns = [
 
     # JWT token refresh
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
+    # Prayer engine (times, qibla, log, history) — FR6-FR8
+    path('api/prayer/', include('prayer.urls')),   # ← ADDED
 ]
