@@ -22,4 +22,7 @@ urlpatterns = [
 
     # Scholar Q&A (ask, answer, pending, archive) — FR18-FR22
     path('api/scholar/', include('scholar.urls')),
+
+    # Growth and analytics (mood, goals, score) — FR26-FR28
+    path('api/growth/', include('growth.urls')),
 ]
