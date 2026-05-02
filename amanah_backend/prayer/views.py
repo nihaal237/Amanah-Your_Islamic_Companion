@@ -13,44 +13,21 @@ logger = logging.getLogger(__name__)
 
 from .models import PrayerTime, PrayerLog, QiblaData
 from .serializers import PrayerTimeSerializer, PrayerLogSerializer, QiblaSerializer
-from .services import fetch_prayer_times, fetch_qibla_direction
+from .services import get_prayer_times, fetch_qibla_direction  # ← fixed
 
 
 class PrayerTimesView(APIView):
-    """GET /api/prayer/times/ — return today's prayer times, fetch + cache if needed."""
+    """GET /api/prayer/times/ — return today's prayer times with cache fallback (FR28)."""
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        user        = request.user
-        today       = date.today()
-        city        = request.query_params.get('city', 'Lahore')
-        country     = request.query_params.get('country', 'Pakistan')
-        method      = int(request.query_params.get('method', 1))  # Karachi method
+        user    = request.user
+        city    = request.query_params.get('city', 'Lahore')
+        country = request.query_params.get('country', 'Pakistan')
+        method  = int(request.query_params.get('method', 1))
 
-        # Check cache first
-        prayer_time = PrayerTime.objects.filter(user=user, date=today).first()
-
-        if not prayer_time:
-            try:
-                timings = fetch_prayer_times(city, country, method, today)
-            except RuntimeError as e:
-                logger.error("Prayer times fetch failed: %s", e)
-                return Response(
-                    {'error': 'Prayer times service is temporarily unavailable. Please try again later.'},
-                    status=status.HTTP_503_SERVICE_UNAVAILABLE,
-                )
-
-            prayer_time = PrayerTime.objects.create(
-                user    = user,
-                date    = today,
-                city    = city,
-                country = country,
-                method  = method,
-                **timings,
-            )
-
-        serializer = PrayerTimeSerializer(prayer_time)
-        return Response(serializer.data)
+        result = get_prayer_times(user, city, country, method)  # ← fixed, now returns dict with data_source
+        return Response(result)
 
 
 class QiblaView(APIView):
@@ -82,7 +59,6 @@ class QiblaView(APIView):
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
 
-        # Store encrypted GPS + direction
         qibla = QiblaData.objects.create(
             user      = request.user,
             latitude  = lat,
@@ -106,7 +82,6 @@ class PrayerLogView(APIView):
         prayer_name = serializer.validated_data['prayer_name']
         log_date    = serializer.validated_data.get('date', date.today())
 
-        # Upsert — update if already logged today
         log, created = PrayerLog.objects.update_or_create(
             user        = request.user,
             date        = log_date,

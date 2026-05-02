@@ -123,3 +123,22 @@ class QiblaData(models.Model):
 
     def __str__(self):
         return f"{self.user.username} — Qibla {self.direction:.1f}°"
+
+class CachedPrayerTime(models.Model):
+    """Stores the last successful API response for prayer times per user location."""
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    date = models.DateField()
+    city = models.CharField(max_length=100)
+    country = models.CharField(max_length=100)
+    fajr = models.CharField(max_length=10)
+    dhuhr = models.CharField(max_length=10)
+    asr = models.CharField(max_length=10)
+    maghrib = models.CharField(max_length=10)
+    isha = models.CharField(max_length=10)
+    cached_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ("user", "date", "city", "country")
+
+    def __str__(self):
+        return f"Cache: {self.user} - {self.date}"
