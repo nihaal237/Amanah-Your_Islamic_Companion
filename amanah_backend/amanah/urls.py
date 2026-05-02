@@ -20,6 +20,6 @@ urlpatterns = [
     # Community features (posts, comments, likes, follows) — FR9-FR14
     path('api/community/', include('community.urls')),
 
-    # Scholar Q&A (ask, answer, pending, archive) — FR18-FR22
+    # Scholar Q&A (ask, answer, pending, archive) — FR22-FR25
     path('api/scholar/', include('scholar.urls')),
 ]
