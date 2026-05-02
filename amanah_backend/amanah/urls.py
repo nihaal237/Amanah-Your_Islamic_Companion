@@ -10,4 +10,7 @@ urlpatterns = [
 
     # JWT token refresh
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
+    # Quran endpoints (surahs, verses, search, bookmarks)
+    path('api/quran/', include('quran.urls')),
 ]
