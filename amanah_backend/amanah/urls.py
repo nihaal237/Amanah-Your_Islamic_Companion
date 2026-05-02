@@ -16,4 +16,5 @@ urlpatterns = [
 
     # Quran endpoints (surahs, verses, search, bookmarks) — FR15-FR17
     path('api/quran/', include('quran.urls')),
+    path('api/prayer/', include('prayer.urls')),   # ← ADDED
 ]
