@@ -1,5 +1,7 @@
 import logging
 
+from growth.services import calculate_amanah_score
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -111,6 +113,8 @@ class PrayerLogView(APIView):
             prayer_name = prayer_name,
             defaults    = {'completed': True},
         )
+
+        calculate_amanah_score(request.user)
 
         return Response(
             PrayerLogSerializer(log).data,

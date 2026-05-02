@@ -1,3 +1,5 @@
+from growth.services import calculate_amanah_score
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -62,6 +64,7 @@ class BookmarkListCreateView(APIView):
         serializer = QuranBookmarkSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(user=request.user)
+            calculate_amanah_score(request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
