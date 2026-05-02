@@ -30,6 +30,8 @@ INSTALLED_APPS = [
     'quran',                   # Quran service (FR15-FR17)
     'community',                # Community features (FR9-FR14)
     'scholar',                  # Scholar Q&A (FR18-FR22)
+    'growth',                   # Growth and analytics (FR26-FR28)
+    'calendar_app',             # Calendar integration (FR29-FR30)
 ]
 
 MIDDLEWARE = [
