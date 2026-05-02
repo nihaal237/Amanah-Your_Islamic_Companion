@@ -12,18 +12,6 @@ from .serializers import (
 )
 
 
-class IsUser(IsAuthenticated):
-    """Allow only users with is_user=True."""
-    def has_permission(self, request, view):
-        return super().has_permission(request, view) and request.user.is_user
-
-
-class IsScholar(IsAuthenticated):
-    """Allow only users with is_scholar=True."""
-    def has_permission(self, request, view):
-        return super().has_permission(request, view) and request.user.is_scholar
-
-
 # POST /api/scholar/ask/
 class AskQuestionView(APIView):
     permission_classes = [IsAuthenticated]
