@@ -1,9 +1,13 @@
+import logging
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
 from datetime import date
+
+logger = logging.getLogger(__name__)
 
 from .models import PrayerTime, PrayerLog, QiblaData
 from .serializers import PrayerTimeSerializer, PrayerLogSerializer, QiblaSerializer
@@ -28,7 +32,11 @@ class PrayerTimesView(APIView):
             try:
                 timings = fetch_prayer_times(city, country, method, today)
             except RuntimeError as e:
-                return Response({'error': str(e)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+                logger.error("Prayer times fetch failed: %s", e)
+                return Response(
+                    {'error': 'Prayer times service is temporarily unavailable. Please try again later.'},
+                    status=status.HTTP_503_SERVICE_UNAVAILABLE,
+                )
 
             prayer_time = PrayerTime.objects.create(
                 user    = user,
@@ -66,7 +74,11 @@ class QiblaView(APIView):
         try:
             direction = fetch_qibla_direction(lat, lng)
         except RuntimeError as e:
-            return Response({'error': str(e)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            logger.error("Qibla direction fetch failed: %s", e)
+            return Response(
+                {'error': 'Qibla direction service is temporarily unavailable. Please try again later.'},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
 
         # Store encrypted GPS + direction
         qibla = QiblaData.objects.create(
