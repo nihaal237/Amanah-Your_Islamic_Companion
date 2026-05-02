@@ -28,7 +28,7 @@ INSTALLED_APPS = [
     'users',
     'prayer',                  # Prayer engine (FR6-FR8)
     'quran',                   # Quran service (FR15-FR17)
-    'prayer',                  # ← ADDED: Prayer engine (FR6-FR8)
+    'community',                # Community features (FR9-FR14)
 ]
 
 MIDDLEWARE = [
