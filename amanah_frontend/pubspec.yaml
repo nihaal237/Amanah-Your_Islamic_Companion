@@ -31,9 +31,38 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.8
+  # State management
+  provider: ^6.1.2
+
+  # HTTP client
+  dio: ^5.4.3+1
+
+  # Local storage (tokens + offline queue)
+  flutter_secure_storage: ^9.0.0
+  shared_preferences: ^2.2.3
+
+  # Navigation
+  go_router: ^13.2.0
+
+  # UI
+  cupertino_icons: ^1.0.6
+  cached_network_image: ^3.3.1
+  shimmer: ^3.0.0
+
+  # Audio (Quran)
+  just_audio: ^0.9.36
+
+  # Qibla compass
+  flutter_qiblah: ^2.1.2
+
+  # Hijri calendar
+  hijri: 3.0.0
+
+  # Icons
+  flutter_svg: ^2.0.10+1
+
+  # Date formatting
+  intl: ^0.19.0
 
 dev_dependencies:
   flutter_test:
