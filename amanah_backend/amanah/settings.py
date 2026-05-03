@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'scholar',                  # Scholar Q&A (FR18-FR22)
     'growth',                   # Growth and analytics (FR26-FR28)
     'calendar_app',             # Calendar integration (FR29-FR30)
+    'sync',                     # Data sync endpoint for mobile app
 ]
 
 MIDDLEWARE = [

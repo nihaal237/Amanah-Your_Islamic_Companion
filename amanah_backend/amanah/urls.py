@@ -28,4 +28,7 @@ urlpatterns = [
 
     # Calendar integration (events, reminders) — FR29-FR30
     path("api/calendar/", include("calendar_app.urls")),
+
+    # Data sync endpoint for mobile app (sync logs, goals, etc.)
+    path("api/sync/", include("sync.urls")),
 ]

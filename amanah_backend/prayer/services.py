@@ -10,32 +10,69 @@ from datetime import date
 ALADHAN_BASE = "https://api.aladhan.com/v1"
 
 
-def fetch_prayer_times(city: str, country: str, method: int, target_date: date) -> dict:
-    """
-    Fetch prayer times from Aladhan for a given city/date.
-    Returns a dict with prayer time strings or raises RuntimeError.
-    """
-    date_str = target_date.strftime("%d-%m-%Y")
-    url = f"{ALADHAN_BASE}/timingsByCity/{date_str}"
-    params = {
-        "city":    city,
-        "country": country,
-        "method":  method,
-    }
-    resp = requests.get(url, params=params, timeout=10)
-    if resp.status_code != 200:
-        raise RuntimeError(f"Aladhan API error: {resp.status_code}")
+from .models import PrayerTime, PrayerLog, QiblaData, CachedPrayerTime
+from django.utils import timezone
 
-    data   = resp.json()
-    timings = data["data"]["timings"]
-    return {
-        "fajr":    timings["Fajr"],
-        "sunrise": timings["Sunrise"],
-        "dhuhr":   timings["Dhuhr"],
-        "asr":     timings["Asr"],
-        "maghrib": timings["Maghrib"],
-        "isha":    timings["Isha"],
-    }
+def get_prayer_times(user, city="Lahore", country="Pakistan", method=1):
+    today = timezone.now().date()
+    url = f"http://api.aladhan.com/v1/timingsByCity/{today}?city={city}&country={country}&method={method}"
+
+    try:
+        response = requests.get(url, timeout=5)
+        response.raise_for_status()
+        data = response.json()["data"]["timings"]
+
+        # Save/update cache
+        CachedPrayerTime.objects.update_or_create(
+            user=user, date=today, city=city, country=country,
+            defaults={
+                "fajr": data["Fajr"],
+                "dhuhr": data["Dhuhr"],
+                "asr": data["Asr"],
+                "maghrib": data["Maghrib"],
+                "isha": data["Isha"],
+            }
+        )
+
+        return {
+            "data_source": "live",
+            "date": str(today),
+            "city": city,
+            "country": country,
+            "timings": {
+                "Fajr": data["Fajr"],
+                "Dhuhr": data["Dhuhr"],
+                "Asr": data["Asr"],
+                "Maghrib": data["Maghrib"],
+                "Isha": data["Isha"],
+            }
+        }
+
+    except Exception:
+        # Fallback to cache
+        cached = CachedPrayerTime.objects.filter(
+            user=user, city=city, country=country
+        ).order_by("-date").first()
+
+        if cached:
+            return {
+                "data_source": "cache",
+                "date": str(cached.date),
+                "city": city,
+                "country": country,
+                "timings": {
+                    "Fajr": cached.fajr,
+                    "Dhuhr": cached.dhuhr,
+                    "Asr": cached.asr,
+                    "Maghrib": cached.maghrib,
+                    "Isha": cached.isha,
+                }
+            }
+
+        return {
+            "data_source": "unavailable",
+            "error": "Prayer times unavailable. No internet and no cached data found."
+        }
 
 
 def fetch_qibla_direction(latitude: float, longitude: float) -> float:
