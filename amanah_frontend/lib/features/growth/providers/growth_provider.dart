@@ -9,12 +9,14 @@ class GrowthProvider extends ChangeNotifier {
   int? _score;
   int? _streak;
   List<Map<String, dynamic>> _goals = [];
+  List<Map<String, dynamic>> _completedGoals = [];
   List<Map<String, dynamic>> _moodHistory = [];
 
   bool get isLoading => _isLoading;
   int? get score => _score;
   int? get streak => _streak;
   List<Map<String, dynamic>> get goals => _goals;
+  List<Map<String, dynamic>> get completedGoals => _completedGoals;
   List<Map<String, dynamic>> get moodHistory => _moodHistory;
 
   Future<void> fetchProgress() async {
@@ -22,12 +24,26 @@ class GrowthProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final scoreResp = await ApiService.get(ApiConstants.score);
-      final goalsResp = await ApiService.get(ApiConstants.goals);
       _score = scoreResp.data['score'] ?? scoreResp.data['amanah_score'];
       _streak = scoreResp.data['streak'] ?? scoreResp.data['current_streak'];
-      final gData = goalsResp.data;
-      if (gData is List) _goals = gData.cast<Map<String, dynamic>>();
-      else if (gData is Map && gData.containsKey('results')) _goals = (gData['results'] as List).cast<Map<String, dynamic>>();
+    } catch (_) {}
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  Future<void> fetchGoals() async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      final resp = await ApiService.get(ApiConstants.goals);
+      final data = resp.data;
+      final all = data is List
+          ? data.cast<Map<String, dynamic>>()
+          : (data is Map && data.containsKey('results'))
+              ? (data['results'] as List).cast<Map<String, dynamic>>()
+              : <Map<String, dynamic>>[];
+      _goals = all.where((g) => g['is_active'] != false).toList();
+      _completedGoals = all.where((g) => g['is_active'] == false || g['completed'] == true).toList();
     } catch (_) {}
     _isLoading = false;
     notifyListeners();
@@ -43,6 +59,19 @@ class GrowthProvider extends ChangeNotifier {
     } catch (_) {}
   }
 
+  Future<void> fetchMoodHistory() async {
+    try {
+      final resp = await ApiService.get(ApiConstants.mood);
+      final data = resp.data;
+      if (data is List) {
+        _moodHistory = data.cast<Map<String, dynamic>>();
+      } else if (data is Map && data.containsKey('results')) {
+        _moodHistory = (data['results'] as List).cast<Map<String, dynamic>>();
+      }
+      notifyListeners();
+    } catch (_) {}
+  }
+
   Future<void> createGoal(String title) async {
     try {
       final resp = await ApiService.post(ApiConstants.goals, data: {'title': title});
@@ -51,10 +80,26 @@ class GrowthProvider extends ChangeNotifier {
     } catch (_) {}
   }
 
-  Future<void> completeGoal(int goalId) async {
+  Future<void> completeGoal(dynamic goalId) async {
     try {
       await ApiService.post('${ApiConstants.goals}$goalId/complete/');
-      await fetchProgress();
+      final idx = _goals.indexWhere((g) => g['id'].toString() == goalId.toString());
+      if (idx != -1) {
+        final goal = Map<String, dynamic>.from(_goals[idx]);
+        goal['is_active'] = false;
+        goal['completed'] = true;
+        _goals.removeAt(idx);
+        _completedGoals.insert(0, goal);
+        notifyListeners();
+      }
+    } catch (_) {}
+  }
+
+  Future<void> deleteGoal(String goalId) async {
+    try {
+      await ApiService.delete('${ApiConstants.goals}$goalId/');
+      _goals.removeWhere((g) => g['id'].toString() == goalId);
+      notifyListeners();
     } catch (_) {}
   }
 }

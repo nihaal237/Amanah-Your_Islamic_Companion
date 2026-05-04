@@ -8,22 +8,19 @@ import '../../../core/constants/api_constants.dart';
 class PrayerProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
-
-  // Raw prayer times from API
   Map<String, dynamic>? _prayerData;
+  List<int> _weekHistory = List.filled(7, 0); // prayers logged per day this week
 
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
+  List<int> get weekHistory => _weekHistory;
 
-  // Ordered prayer names
   static const _prayerOrder = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
 
-  // ── Fetch prayer times ──────────────────────────────────────────────────
   Future<void> fetchPrayerTimes() async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
-
     try {
       final response = await ApiService.get(ApiConstants.prayerTimes);
       _prayerData = response.data;
@@ -35,30 +32,51 @@ class PrayerProvider extends ChangeNotifier {
     }
   }
 
-  // ── Log a completed prayer ──────────────────────────────────────────────
+  Future<void> fetchPrayerHistory() async {
+    try {
+      final response = await ApiService.get(ApiConstants.prayerHistory);
+      final data = response.data;
+      // Backend returns list of {prayer_name, logged_at}
+      // We count how many prayers were logged each day this week
+      final history = data is List ? data : (data is Map && data.containsKey('results') ? data['results'] : []);
+      final now = DateTime.now();
+      final weekStart = now.subtract(Duration(days: now.weekday - 1)); // Monday
+
+      final counts = List<int>.filled(7, 0);
+      for (final entry in history) {
+        try {
+          final loggedAt = DateTime.parse(entry['logged_at'].toString());
+          final dayIndex = loggedAt.difference(weekStart).inDays;
+          if (dayIndex >= 0 && dayIndex < 7) {
+            counts[dayIndex]++;
+          }
+        } catch (_) {}
+      }
+      _weekHistory = counts;
+      notifyListeners();
+    } catch (_) {}
+  }
+
   Future<void> logPrayer(String prayerName) async {
     try {
       await ApiService.post(ApiConstants.prayerLog, data: {
         'prayer_name': prayerName,
         'logged_at': DateTime.now().toIso8601String(),
       });
-      // Mark locally as logged
-      if (_prayerData != null) {
-        final timings = _prayerData!['timings'] as Map? ?? {};
-        if (timings.containsKey(prayerName)) {
-          // Refresh to get updated history
-          fetchPrayerTimes();
-        }
+      // Update today's count locally
+      final todayIdx = DateTime.now().weekday - 1;
+      if (todayIdx >= 0 && todayIdx < 7) {
+        _weekHistory[todayIdx]++;
       }
+      // Refresh to get updated logged_today list
+      fetchPrayerTimes();
     } catch (_) {}
   }
 
-  // ── Today's prayers list for UI ─────────────────────────────────────────
   List<Map<String, dynamic>> get todaysPrayers {
     if (_prayerData == null) return [];
     final timings = _prayerData!['timings'] as Map? ?? {};
     final logged = _prayerData!['logged_today'] as List? ?? [];
-
     return _prayerOrder
         .where((name) => timings.containsKey(name))
         .map((name) => {
@@ -69,7 +87,6 @@ class PrayerProvider extends ChangeNotifier {
         .toList();
   }
 
-  // ── Next prayer ─────────────────────────────────────────────────────────
   String? get nextPrayer {
     if (_prayerData == null) return null;
     return _prayerData!['next_prayer']?.toString();
@@ -85,20 +102,16 @@ class PrayerProvider extends ChangeNotifier {
 
   String? get timeUntilNextPrayer {
     if (_prayerData == null) return null;
+    final timings = _prayerData!['timings'] as Map? ?? {};
     final next = nextPrayer;
     if (next == null) return null;
-    final timings = _prayerData!['timings'] as Map? ?? {};
     final timeStr = timings[next]?.toString();
     if (timeStr == null) return null;
-
     try {
       final parts = timeStr.split(':');
       final prayerDt = DateTime(
-        DateTime.now().year,
-        DateTime.now().month,
-        DateTime.now().day,
-        int.parse(parts[0]),
-        int.parse(parts[1]),
+        DateTime.now().year, DateTime.now().month, DateTime.now().day,
+        int.parse(parts[0]), int.parse(parts[1]),
       );
       final diff = prayerDt.difference(DateTime.now());
       if (diff.isNegative) return 'Passed';
@@ -111,9 +124,7 @@ class PrayerProvider extends ChangeNotifier {
     }
   }
 
-  // ── Helpers ─────────────────────────────────────────────────────────────
   String _formatTime(String raw) {
-    // raw may be "HH:mm" or "HH:mm (EET)"
     try {
       final clean = raw.split(' ').first;
       final parts = clean.split(':');

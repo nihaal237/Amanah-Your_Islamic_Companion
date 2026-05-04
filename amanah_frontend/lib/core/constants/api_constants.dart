@@ -1,48 +1,55 @@
+// lib/core/constants/api_constants.dart
+
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 class ApiConstants {
-  // Change this to your machine's IP when testing on a physical device
-  // Use 10.0.2.2 for Android emulator, 127.0.0.1 for iOS simulator
-  static const String baseUrl = 'http://127.0.0.1:8000/api';
+  static String get baseUrl {
+    if (kIsWeb) return 'http://127.0.0.1:8000/api';
+    // For real device on same WiFi, change to your PC's local IP:
+    // return 'http://192.168.X.X:8000/api';
+    return 'http://10.0.2.2:8000/api'; // Android emulator default
+  }
 
-  // Auth
-  static const String login = '$baseUrl/auth/login/';
-  static const String register = '$baseUrl/auth/register/';
-  static const String logout = '$baseUrl/auth/logout/';
-  static const String profile = '$baseUrl/auth/profile/';
-  static const String changePassword = '$baseUrl/auth/change-password/';
-  static const String refreshToken = '$baseUrl/token/refresh/';
+  // ── Auth ──────────────────────────────────────────────────────────────────
+  static String get login =>            '$baseUrl/auth/login/';
+  static String get register =>         '$baseUrl/auth/register/';
+  static String get logout =>           '$baseUrl/auth/logout/';
+  static String get profile =>          '$baseUrl/auth/profile/';
+  static String get changePassword =>   '$baseUrl/auth/change-password/';
+  static String get refreshToken =>     '$baseUrl/token/refresh/';
 
-  // Prayer
-  static const String prayerTimes = '$baseUrl/prayer/times/';
-  static const String qibla = '$baseUrl/prayer/qibla/';
-  static const String prayerLog = '$baseUrl/prayer/log/';
-  static const String prayerHistory = '$baseUrl/prayer/history/';
+  // ── Prayer ────────────────────────────────────────────────────────────────
+  static String get prayerTimes =>      '$baseUrl/prayer/times/';
+  static String get qibla =>            '$baseUrl/prayer/qibla/';
+  static String get prayerLog =>        '$baseUrl/prayer/log/';
+  static String get prayerHistory =>    '$baseUrl/prayer/history/';
 
-  // Quran
-  static const String surahs = '$baseUrl/quran/surahs/';
-  static const String surah = '$baseUrl/quran/surah/'; // + {n}/
-  static const String quranSearch = '$baseUrl/quran/search/';
-  static const String bookmark = '$baseUrl/quran/bookmark/';
-  static const String bookmarks = '$baseUrl/quran/bookmarks/';
+  // ── Quran ─────────────────────────────────────────────────────────────────
+  static String get surahs =>           '$baseUrl/quran/surahs/';
+  static String get surah =>            '$baseUrl/quran/surah/';
+  static String get quranSearch =>      '$baseUrl/quran/search/';
+  static String get bookmark =>         '$baseUrl/quran/bookmark/';
+  static String get bookmarks =>        '$baseUrl/quran/bookmarks/';
 
-  // Community
-  static const String circles = '$baseUrl/community/circles/';
-  static const String posts = '$baseUrl/community/circles/'; // + {id}/posts/
+  // ── Community ─────────────────────────────────────────────────────────────
+  static String get circles =>          '$baseUrl/community/circles/';
+  static String get posts =>            '$baseUrl/community/posts/';
 
-  // Scholar
-  static const String ask = '$baseUrl/scholar/ask/';
-  static const String scholarQuestions = '$baseUrl/scholar/questions/';
-  static const String myQuestions = '$baseUrl/scholar/my-questions/';
-  static const String archive = '$baseUrl/scholar/archive/';
+  // ── Scholar ───────────────────────────────────────────────────────────────
+  static String get ask =>              '$baseUrl/scholar/ask/';
+  static String get scholarQuestions => '$baseUrl/scholar/questions/';
+  static String get myQuestions =>      '$baseUrl/scholar/my-questions/';
+  static String get archive =>          '$baseUrl/scholar/archive/';
 
-  // Growth
-  static const String mood = '$baseUrl/growth/mood/';
-  static const String goals = '$baseUrl/growth/goals/';
-  static const String score = '$baseUrl/growth/score/';
+  // ── Growth ────────────────────────────────────────────────────────────────
+  static String get mood =>             '$baseUrl/growth/mood/';
+  static String get goals =>            '$baseUrl/growth/goals/';
+  static String get score =>            '$baseUrl/growth/score/';
 
-  // Calendar
-  static const String hijri = '$baseUrl/calendar/hijri/';
-  static const String events = '$baseUrl/calendar/events/';
+  // ── Calendar ──────────────────────────────────────────────────────────────
+  static String get hijri =>            '$baseUrl/calendar/hijri/';
+  static String get events =>           '$baseUrl/calendar/events/';
 
-  // Sync
-  static const String batchSync = '$baseUrl/sync/batch/';
+  // ── Sync ──────────────────────────────────────────────────────────────────
+  static String get batchSync =>        '$baseUrl/sync/batch/';
 }
