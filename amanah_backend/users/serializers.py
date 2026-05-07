@@ -8,45 +8,51 @@ class RegisterSerializer(serializers.ModelSerializer):
     FR1: User registration with NADRA age check (>=12).
     FR2: NADRA ID required at signup.
     """
+    # Define gender choices
+    GENDER_CHOICES = (
+        ('Male', 'Male'),
+        ('Female', 'Female'),
+        ('Other', 'Other'),
+    )
+
     password = serializers.CharField(write_only=True, min_length=8)
-    password_confirm = serializers.CharField(write_only=True)
+    #password_confirm = serializers.CharField(write_only=True)
+    
+    # Adding ChoiceField for explicit validation
+    gender = serializers.ChoiceField(choices=GENDER_CHOICES, required=True)
 
     class Meta:
         model = AmanahUser
         fields = [
-            'email', 'username', 'first_name', 'last_name',
-            'password', 'password_confirm',
-            'gender', 'date_of_birth', 'city', 'country',
-            'nadra_id',
+            'email', 'full_name',
+            'password', #'password_confirm',
+            'gender', 'city',
         ]
-        extra_kwargs = {
-            'first_name': {'required': True},
-            'last_name': {'required': True},
-            'nadra_id': {'required': True},
-            'date_of_birth': {'required': True},
-        }
+        # extra_kwargs = {
+        #     'first_name': {'required': True},
+        #     'last_name': {'required': True},
+        # }
 
-    def validate(self, data):
-        if data['password'] != data['password_confirm']:
-            raise serializers.ValidationError({'password_confirm': 'Passwords do not match.'})
-        return data
-
-    def validate_date_of_birth(self, value):
-        from datetime import date
-        today = date.today()
-        age = today.year - value.year - ((today.month, today.day) < (value.month, value.day))
-        if age < 12:
-            raise serializers.ValidationError('User must be at least 12 years old (FR2).')
+    def validate_gender(self, value):
+        """
+        Optional: Extra custom validation if you want to handle 
+        specific logic for gender input.
+        """
+        valid_codes = [choice[0] for choice in self.GENDER_CHOICES]
+        if value not in valid_codes:
+            raise serializers.ValidationError(
+                f"Invalid gender. Please choose from: {', '.join(valid_codes)}"
+            )
         return value
 
-    def validate_nadra_id(self, value):
-        cleaned = value.replace('-', '')
-        if not cleaned.isdigit() or len(cleaned) != 13:
-            raise serializers.ValidationError('NADRA ID must be a 13-digit CNIC number.')
-        return cleaned
+    # def validate(self, data):
+    #     # Password match check
+    #     if data['password'] != data['password_confirm']:
+    #         raise serializers.ValidationError({'password_confirm': 'Passwords do not match.'})
+    #     return data
 
     def create(self, validated_data):
-        validated_data.pop('password_confirm')
+        #validated_data.pop('password_confirm')
         password = validated_data.pop('password')
         user = AmanahUser(**validated_data)
         user.set_password(password)

@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
+import logging
 
 from .models import AmanahUser
 from .serializers import (
@@ -20,7 +21,7 @@ def get_tokens_for_user(user):
         'refresh': str(refresh),
         'access': str(refresh.access_token),
     }
-
+logger = logging.getLogger(__name__)
 
 class RegisterView(APIView):
     """
@@ -31,17 +32,38 @@ class RegisterView(APIView):
 
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
-        if serializer.is_valid():
-            user = serializer.save()
-            tokens = get_tokens_for_user(user)
+        
+        # 1. Log incoming data to console for debugging
+        print(f"Incoming Registration Data: {request.data}")
+
+        try:
+            if serializer.is_valid():
+                user = serializer.save()
+                tokens = get_tokens_for_user(user)
+                return Response({
+                    'message': 'Account created successfully.',
+                    'user': UserProfileSerializer(user).data,
+                    'tokens': tokens,
+                }, status=status.HTTP_201_CREATED)
+            
+            # 2. Handle Validation Errors (e.g., NADRA ID already exists, missing fields)
+            print(serializer.errors)
             return Response({
-                'message': 'Account created successfully.',
-                'user': UserProfileSerializer(user).data,
-                'tokens': tokens,
-            }, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                'error': 'Validation Failed',
+                'details': serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
 
+        except Exception as e:
+            # 3. Log the specific exception to the console
+            print(f"CRITICAL ERROR during registration: {str(e)}")
+            logger.error(f"Registration Error: {e}", exc_info=True)
 
+            # 4. Return a readable error to the frontend
+            return Response({
+                'error': 'Internal Server Error',
+                'message': 'An unexpected error occurred during registration. Please try again later.'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 class LoginView(APIView):
     """
     POST /api/auth/login/
