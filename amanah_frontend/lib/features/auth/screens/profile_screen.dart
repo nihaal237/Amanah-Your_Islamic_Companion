@@ -31,7 +31,7 @@ class ProfileScreen extends StatelessWidget {
               _buildStatsRow(),
               const SizedBox(height: 20),
               _buildSection('Appearance', [
-                _buildToggleTile(Icons.dark_mode_outlined, 'Dark Mode', false, (v) {}),
+                _buildToggleTile('Dark Mode', false, (v) {}),
                 _buildNavTile(context, Icons.color_lens_outlined, 'Theme Color', trailing: _colorDots()),
               ]),
               const SizedBox(height: 12),
@@ -45,12 +45,14 @@ class ProfileScreen extends StatelessWidget {
               _buildSection('Account', [
                 _buildNavTile(context, Icons.lock_outline_rounded, 'Change Password',
                     onTap: () => context.push('/profile/password')),
-                _buildNavTile(context, Icons.shield_outlined, 'Privacy Settings', onTap: () {}),
+                _buildNavTile(context, Icons.shield_outlined, 'Privacy Settings',
+                    onTap: () => context.push('/profile/privacy')),
                 _buildNavTile(context, Icons.privacy_tip_outlined, 'Privacy Policy',
                     onTap: () => context.push('/privacy-policy')),
                 _buildNavTile(context, Icons.description_outlined, 'Terms of Service',
                     onTap: () => context.push('/terms-of-service')),
-                _buildNavTile(context, Icons.help_outline_rounded, 'Help & Support', onTap: () {}),
+                _buildNavTile(context, Icons.help_outline_rounded, 'Help & Support',
+                    onTap: () => context.push('/support')),
               ]),
               const SizedBox(height: 20),
               _buildLogoutButton(context),
@@ -110,23 +112,19 @@ class ProfileScreen extends StatelessWidget {
         ),
         child: Column(
           children: [
-            // Avatar
             Stack(
               children: [
                 Container(
                   width: 72, height: 72,
-                  decoration: BoxDecoration(shape: BoxShape.circle, color: _primaryGreen),
-                  child: Center(
-                    child: Text(initials, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: Colors.white)),
-                  ),
+                  decoration: const BoxDecoration(shape: BoxShape.circle, color: _primaryGreen),
+                  child: Center(child: Text(initials, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: Colors.white))),
                 ),
                 Positioned(
                   bottom: 0, right: 0,
                   child: Container(
                     width: 22, height: 22,
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
+                      color: Colors.white, shape: BoxShape.circle,
                       border: Border.all(color: const Color(0xFFE0EBE5), width: 1.5),
                     ),
                     child: const Icon(Icons.camera_alt_rounded, size: 12, color: _primaryGreen),
@@ -139,13 +137,9 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(height: 4),
             Text(bio, style: const TextStyle(fontSize: 12, color: Color(0xFF6B8C7A))),
             const SizedBox(height: 16),
-            // Amanah Score
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              decoration: BoxDecoration(
-                color: const Color(0xFFE8F4EE),
-                borderRadius: BorderRadius.circular(12),
-              ),
+              decoration: BoxDecoration(color: const Color(0xFFE8F4EE), borderRadius: BorderRadius.circular(12)),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -156,11 +150,11 @@ class ProfileScreen extends StatelessWidget {
                       Text('$score', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: _primaryGreen)),
                     ],
                   ),
-                  Row(
+                  const Row(
                     children: [
-                      const Icon(Icons.trending_up_rounded, color: _primaryGreen, size: 16),
-                      const SizedBox(width: 4),
-                      Text('+12% this\nweek', style: const TextStyle(fontSize: 11, color: _primaryGreen, fontWeight: FontWeight.w500)),
+                      Icon(Icons.trending_up_rounded, color: _primaryGreen, size: 16),
+                      SizedBox(width: 4),
+                      Text('+12% this\nweek', style: TextStyle(fontSize: 11, color: _primaryGreen, fontWeight: FontWeight.w500)),
                     ],
                   ),
                 ],
@@ -245,7 +239,7 @@ class ProfileScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(
           children: [
-            Icon(icon, size: 20, color: const Color(0xFF1B5E45)),
+            Icon(icon, size: 20, color: _primaryGreen),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
@@ -263,38 +257,32 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildToggleTile(IconData icon, String title, bool value, ValueChanged<bool> onChanged) {
+  Widget _buildToggleTile(String title, bool value, ValueChanged<bool> onChanged) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: const Color(0xFF1B5E45)),
+          const Icon(Icons.dark_mode_outlined, size: 20, color: _primaryGreen),
           const SizedBox(width: 14),
           Expanded(child: Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF1A2E25)))),
-          Switch(value: value, onChanged: onChanged, activeColor: _primaryGreen),
+          // ✅ activeThumbColor instead of deprecated activeColor
+          Switch(value: value, onChanged: onChanged, activeThumbColor: Colors.white, activeTrackColor: _primaryGreen),
         ],
       ),
     );
   }
 
   Widget _colorDots() {
-    return Row(
-      children: [
-        _dot(const Color(0xFF1B5E45)),
-        const SizedBox(width: 4),
-        _dot(const Color(0xFF2E7D5E)),
-        const SizedBox(width: 4),
-        _dot(const Color(0xFF3D5A4C)),
-      ],
-    );
+    return Row(children: [
+      _dot(const Color(0xFF1B5E45)),
+      const SizedBox(width: 4),
+      _dot(const Color(0xFF2E7D5E)),
+      const SizedBox(width: 4),
+      _dot(const Color(0xFF3D5A4C)),
+    ]);
   }
 
-  Widget _dot(Color color) {
-    return Container(
-      width: 14, height: 14,
-      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-    );
-  }
+  Widget _dot(Color color) => Container(width: 14, height: 14, decoration: BoxDecoration(color: color, shape: BoxShape.circle));
 
   Widget _buildLogoutButton(BuildContext context) {
     return Padding(
@@ -302,8 +290,7 @@ class ProfileScreen extends StatelessWidget {
       child: GestureDetector(
         onTap: () => _showLogoutDialog(context),
         child: Container(
-          width: double.infinity,
-          height: 50,
+          width: double.infinity, height: 50,
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
@@ -335,10 +322,7 @@ class ProfileScreen extends StatelessWidget {
             children: [
               Container(
                 width: 52, height: 52,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE8F4EE),
-                  shape: BoxShape.circle,
-                ),
+                decoration: const BoxDecoration(color: Color(0xFFE8F4EE), shape: BoxShape.circle),
                 child: const Icon(Icons.logout_rounded, color: _primaryGreen, size: 26),
               ),
               const SizedBox(height: 16),
@@ -352,19 +336,12 @@ class ProfileScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               SizedBox(
-                width: double.infinity,
-                height: 46,
+                width: double.infinity, height: 46,
                 child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(ctx).pop();
-                    context.read<AuthProvider>().logout();
-                    context.go('/login');
-                  },
+                  onPressed: () => Navigator.of(ctx).pop(),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: _primaryGreen,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    backgroundColor: _primaryGreen, foregroundColor: Colors.white,
+                    elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   child: const Text('Stay', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
                 ),

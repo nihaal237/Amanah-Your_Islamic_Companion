@@ -19,7 +19,12 @@ class ScholarProvider extends ChangeNotifier {
     try {
       final resp = await ApiService.get(ApiConstants.scholarQuestions);
       final data = resp.data;
-      if (data is List) _scholars = data.cast<Map<String, dynamic>>();
+      // ✅ Curly braces added to all if blocks
+      if (data is List) {
+        _scholars = data.cast<Map<String, dynamic>>();
+      } else if (data is Map && data.containsKey('results')) {
+        _scholars = (data['results'] as List).cast<Map<String, dynamic>>();
+      }
       notifyListeners();
     } catch (_) {}
   }
@@ -28,8 +33,11 @@ class ScholarProvider extends ChangeNotifier {
     try {
       final resp = await ApiService.get(ApiConstants.archive);
       final data = resp.data;
-      if (data is List) _archive = data.cast<Map<String, dynamic>>();
-      else if (data is Map && data.containsKey('results')) _archive = (data['results'] as List).cast<Map<String, dynamic>>();
+      if (data is List) {
+        _archive = data.cast<Map<String, dynamic>>();
+      } else if (data is Map && data.containsKey('results')) {
+        _archive = (data['results'] as List).cast<Map<String, dynamic>>();
+      }
       notifyListeners();
     } catch (_) {}
   }
@@ -38,7 +46,11 @@ class ScholarProvider extends ChangeNotifier {
     try {
       final resp = await ApiService.get(ApiConstants.myQuestions);
       final data = resp.data;
-      if (data is List) _myQuestions = data.cast<Map<String, dynamic>>();
+      if (data is List) {
+        _myQuestions = data.cast<Map<String, dynamic>>();
+      } else if (data is Map && data.containsKey('results')) {
+        _myQuestions = (data['results'] as List).cast<Map<String, dynamic>>();
+      }
       notifyListeners();
     } catch (_) {}
   }

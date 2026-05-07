@@ -15,8 +15,7 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
   bool _discoverableByEmail = false;
   bool _showOnlineStatus = false;
   bool _prayerRequestAlerts = false;
-  String _anonymousGiving = 'Currently Private';
-  String _mosquePresence = 'Disabled';
+  // ✅ Removed unused _anonymousGiving and _mosquePresence fields
 
   static const Color _primaryGreen = Color(0xFF1B5E45);
   static const Color _bgColor = Color(0xFFEFF4F1);
@@ -115,21 +114,22 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
   }
 
   Widget _buildScoreVisibility() {
-    return _section(
+    return _sectionWidget(
       icon: Icons.star_rounded,
       title: 'Amanah Score Visibility',
       sub: 'Choose who can see your spiritual activity score and achievements.',
       child: Column(
         children: [
-          _radioOption('everyone', 'Everyone', 'Visible to all Amanah users'),
-          _radioOption('circles', 'Circles', 'Only your trusted community circles'),
-          _radioOption('only_me', 'Only Me', 'Keep your progress private'),
+          _customRadioOption('everyone', 'Everyone', 'Visible to all Amanah users', Icons.public_rounded),
+          _customRadioOption('circles', 'Circles', 'Only your trusted community circles', Icons.people_rounded),
+          _customRadioOption('only_me', 'Only Me', 'Keep your progress private', Icons.lock_outline_rounded),
         ],
       ),
     );
   }
 
-  Widget _radioOption(String value, String label, String sub) {
+  // ✅ Custom radio tile — avoids deprecated Radio groupValue/onChanged/activeColor
+  Widget _customRadioOption(String value, String label, String sub, IconData icon) {
     final isSelected = _scoreVisibility == value;
     return GestureDetector(
       onTap: () => setState(() => _scoreVisibility = value),
@@ -140,11 +140,7 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
             Container(
               width: 36, height: 36,
               decoration: BoxDecoration(color: const Color(0xFFE8F4EE), borderRadius: BorderRadius.circular(10)),
-              child: Icon(
-                value == 'everyone' ? Icons.public_rounded :
-                value == 'circles' ? Icons.people_rounded : Icons.lock_outline_rounded,
-                color: _primaryGreen, size: 18,
-              ),
+              child: Icon(icon, color: _primaryGreen, size: 18),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -156,11 +152,17 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
                 ],
               ),
             ),
-            Radio<String>(
-              value: value,
-              groupValue: _scoreVisibility,
-              onChanged: (v) => setState(() => _scoreVisibility = v ?? _scoreVisibility),
-              activeColor: _primaryGreen,
+            // ✅ Custom circle indicator instead of Radio widget
+            Container(
+              width: 20, height: 20,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: isSelected ? _primaryGreen : Colors.grey.shade300, width: 2),
+                color: isSelected ? _primaryGreen : Colors.transparent,
+              ),
+              child: isSelected
+                  ? const Icon(Icons.check_rounded, size: 12, color: Colors.white)
+                  : null,
             ),
           ],
         ),
@@ -169,7 +171,7 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
   }
 
   Widget _buildProfileVisibility() {
-    return _section(
+    return _sectionWidget(
       icon: Icons.person_outline_rounded,
       title: 'Profile Visibility',
       child: Column(
@@ -202,21 +204,27 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
               ],
             ),
           ),
-          Switch(value: value, onChanged: onChanged, activeColor: _primaryGreen),
+          // ✅ activeThumbColor instead of deprecated activeColor
+          Switch(
+            value: value,
+            onChanged: onChanged,
+            activeThumbColor: Colors.white,
+            activeTrackColor: _primaryGreen,
+          ),
         ],
       ),
     );
   }
 
   Widget _buildCommunitySettings() {
-    return _section(
+    return _sectionWidget(
       icon: Icons.people_alt_rounded,
       title: 'Community Settings',
       child: Column(
         children: [
-          _navTile(Icons.volunteer_activism_rounded, 'Anonymous Giving', _anonymousGiving),
+          _navTile(Icons.volunteer_activism_rounded, 'Anonymous Giving', 'Currently Private'),
           const SizedBox(height: 10),
-          _navTile(Icons.mosque_rounded, 'Mosque Presence', _mosquePresence,
+          _navTile(Icons.mosque_rounded, 'Mosque Presence', 'Disabled',
               sub: 'Auto-share your location when arriving for Jemaah prayer.'),
         ],
       ),
@@ -312,8 +320,7 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
               ),
               const SizedBox(height: 24),
               SizedBox(
-                width: double.infinity,
-                height: 46,
+                width: double.infinity, height: 46,
                 child: ElevatedButton(
                   onPressed: () => Navigator.of(ctx).pop(),
                   style: ElevatedButton.styleFrom(
@@ -322,8 +329,7 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
                     elevation: 0,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: const Text('Delete Permanently',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                  child: const Text('Delete Permanently', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
                 ),
               ),
               const SizedBox(height: 10),
@@ -338,7 +344,7 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
     );
   }
 
-  Widget _section({required IconData icon, required String title, String? sub, required Widget child}) {
+  Widget _sectionWidget({required IconData icon, required String title, String? sub, required Widget child}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

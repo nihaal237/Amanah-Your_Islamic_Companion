@@ -51,9 +51,10 @@ class GrowthProvider extends ChangeNotifier {
 
   Future<void> logMood(String emotion, {String? note}) async {
     try {
+      // ✅ null-aware element: note? instead of if (note != null) 'note': note
       await ApiService.post(ApiConstants.mood, data: {
         'emotion': emotion,
-        if (note != null) 'note': note,
+        'note': note,
         'logged_at': DateTime.now().toIso8601String(),
       });
     } catch (_) {}

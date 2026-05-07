@@ -25,6 +25,17 @@ class _MoodScreenState extends State<MoodScreen> {
     _MoodOption(emoji: '✨', label: 'Hopeful',   color: Color(0xFFFFCA28)),
   ];
 
+  // ✅ Fixed: no async gap — navigate synchronously after setState
+  void _selectMood(String label) {
+    setState(() => _selectedMood = label);
+    // Use addPostFrameCallback to navigate after the frame — avoids async context gap
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.push('/growth/mood/${label.toLowerCase()}');
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,16 +46,14 @@ class _MoodScreenState extends State<MoodScreen> {
             children: [
               _buildHeader(context),
               const SizedBox(height: 28),
-              const Text(
-                'How are you feeling today?',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Color(0xFF1A2E25)),
-              ),
+              const Text('How are you feeling today?',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Color(0xFF1A2E25))),
               const SizedBox(height: 20),
               _buildMoodGrid(),
               const SizedBox(height: 24),
               _buildWisdomCard(),
               const SizedBox(height: 16),
-              _buildReflectionBanner(context),
+              _buildReflectionBanner(),
               const SizedBox(height: 24),
             ],
           ),
@@ -110,12 +119,7 @@ class _MoodScreenState extends State<MoodScreen> {
             final mood = _moods[i];
             final isSelected = _selectedMood == mood.label;
             return GestureDetector(
-              onTap: () {
-                setState(() => _selectedMood = mood.label);
-                Future.delayed(const Duration(milliseconds: 300), () {
-                  if (mounted) context.push('/growth/mood/${mood.label.toLowerCase()}');
-                });
-              },
+              onTap: () => _selectMood(mood.label),
               child: Container(
                 decoration: BoxDecoration(
                   color: isSelected ? mood.color.withValues(alpha: 0.15) : const Color(0xFFF7FAF8),
@@ -133,8 +137,7 @@ class _MoodScreenState extends State<MoodScreen> {
                     Text(
                       mood.label,
                       style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 13, fontWeight: FontWeight.w600,
                         color: isSelected ? mood.color : const Color(0xFF3D5A4C),
                       ),
                     ),
@@ -164,19 +167,17 @@ class _MoodScreenState extends State<MoodScreen> {
           children: [
             const Icon(Icons.auto_awesome_rounded, color: _primaryGreen, size: 18),
             const SizedBox(width: 10),
-            Expanded(
+            const Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     '"Truly, in the remembrance of Allah do hearts find rest." (13:28)',
                     style: TextStyle(fontSize: 13, color: Color(0xFF1A2E25), height: 1.5, fontStyle: FontStyle.italic),
                   ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'DAILY WISDOM',
-                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: _primaryGreen, letterSpacing: 1),
-                  ),
+                  SizedBox(height: 6),
+                  Text('DAILY WISDOM',
+                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: _primaryGreen, letterSpacing: 1)),
                 ],
               ),
             ),
@@ -186,7 +187,7 @@ class _MoodScreenState extends State<MoodScreen> {
     );
   }
 
-  Widget _buildReflectionBanner(BuildContext context) {
+  Widget _buildReflectionBanner() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Container(
@@ -209,7 +210,7 @@ class _MoodScreenState extends State<MoodScreen> {
             const Text('Guided dhikr for times of reflection',
                 style: TextStyle(fontSize: 12, color: Colors.white70)),
             const SizedBox(height: 8),
-            Text('SPIRITUAL SAFE WORK',
+            Text('SPIRITUAL SAFE SPACE',
                 style: TextStyle(fontSize: 9, color: Colors.white.withValues(alpha: 0.5), letterSpacing: 1.5, fontWeight: FontWeight.w600)),
           ],
         ),
@@ -219,8 +220,7 @@ class _MoodScreenState extends State<MoodScreen> {
 }
 
 class _MoodOption {
-  final String emoji;
-  final String label;
+  final String emoji, label;
   final Color color;
   const _MoodOption({required this.emoji, required this.label, required this.color});
 }
